@@ -1,0 +1,54 @@
+# =========================
+# Flutter & Dart
+# =========================
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# =========================
+# Android
+# =========================
+android/.gradle/
+android/build/
+android/.cxx/
+android/local.properties
+android/key.properties
+android/app/google-services.json
+
+# =========================
+# iOS
+# =========================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+
+# =========================
+# Gradle
+# =========================
+.gradle/
+gradle-wrapper.jar
+gradlew
+gradlew.bat
+
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Security (NEVER COMMIT)
+# =========================
+key.properties
+**/*.keystore
+**/*.jks
+.env

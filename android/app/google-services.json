@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "976290698998",
+    "project_id": "jagoentertainment-31816",
+    "storage_bucket": "jagoentertainment-31816.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976290698998:android:4640b60057170547b37ed7",
+        "android_client_info": {
+          "package_name": "com.skills.jagoentertainment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJRNRVt0LH0AP5edisa7HWnwuqzBWrmUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
