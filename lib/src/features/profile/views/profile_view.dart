@@ -1,4 +1,5 @@
-// lib/src/features/profile/ui/profile_view.dart
+// lib/src/features/profile/views/profile_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jagoentertainment/src/core/base/base_view.dart';
@@ -14,12 +15,17 @@ import 'package:jagoentertainment/src/features/profile/widgets/custom_button.dar
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ProfileView extends BaseView<ProfileController> {
+  // No const constructor and no `key` passed to super,
+  // because BaseView does not define a const constructor or a `key` parameter.
+
   @override
   PreferredSizeWidget? appBar(BuildContext context) {
     return ApplicationBar(
       appTitleText: "Profile",
       centerTitle: true,
-      titleTextStyle: textBaseSemiBold.copyWith(color: AppColors.baseWhite),
+      titleTextStyle: textBaseSemiBold.copyWith(
+        color: AppColors.baseWhite,
+      ),
     );
   }
 
@@ -28,7 +34,6 @@ class ProfileView extends BaseView<ProfileController> {
     return Obx(() {
       if (!AuthService.to.isLoggedIn.value ||
           AuthService.to.userData.value == null) {
-        // User should NEVER see profile view if not logged in
         return const SizedBox.shrink();
       }
 
@@ -42,6 +47,7 @@ class ProfileView extends BaseView<ProfileController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ───── USER INFO ─────
             Row(
               children: [
                 // Avatar
@@ -58,9 +64,8 @@ class ProfileView extends BaseView<ProfileController> {
                 ),
                 const SizedBox(width: AppValues.gap),
 
-                // Name + Email
-                SizedBox(
-                  width: AppValues.container_120,
+                // Name + Email (responsive)
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -82,9 +87,8 @@ class ProfileView extends BaseView<ProfileController> {
                     ],
                   ),
                 ),
-                const Spacer(),
 
-                // Sign Out
+                // Sign out button
                 CustomButton(
                   bgColor: AppColors.zinc800,
                   icon: PhosphorIconsRegular.signOut,
@@ -96,8 +100,52 @@ class ProfileView extends BaseView<ProfileController> {
                     BottomNavigationController.to.currentIndex.value = 0;
                     Get.offAllNamed(Routes.BOTTOM_NAVIGATION);
                   },
-                )
+                ),
               ],
+            ),
+
+            const SizedBox(height: AppValues.gapXLarge),
+
+            // ───── DANGER ZONE ─────
+            Text(
+              "Danger Zone",
+              style: textBaseSemiBold.copyWith(
+                color: Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: AppValues.gapSmall),
+
+            Text(
+              "Deleting your account will permanently remove all your data. This action cannot be undone.",
+              style: textSMRegular.copyWith(
+                color: AppColors.zinc400,
+              ),
+            ),
+            const SizedBox(height: AppValues.gap),
+
+            // ───── DELETE ACCOUNT BUTTON ─────
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppValues.gap,
+                  ),
+                ),
+                icon: const Icon(
+                  PhosphorIconsRegular.trash,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  "Delete Account",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onPressed: controller.confirmDeleteAccount,
+              ),
             ),
           ],
         ),

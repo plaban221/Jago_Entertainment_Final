@@ -10,14 +10,14 @@ import 'package:jagoentertainment/src/models/auth/user_data.dart';
 class AuthService extends GetxService {
   static AuthService get to => Get.find();
 
-  final PreferenceManager _preferenceManager = Get.find<PreferenceManagerImpl>();
+  final PreferenceManager _preferenceManager =
+  Get.find<PreferenceManagerImpl>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   var isLoggedIn = false.obs;
   var userData = Rxn<UserData>();
   var isAuthReady = false.obs;
-
 
   String? accessToken;
 
@@ -40,6 +40,7 @@ class AuthService extends GetxService {
     }
   }
 
+  // ───────────────── SIGN UP ─────────────────
   Future<void> signupWithEmail({
     required String name,
     required String email,
@@ -53,7 +54,6 @@ class AuthService extends GetxService {
 
       final uid = credential.user!.uid;
 
-      // Save user data to Firestore
       await _firestore.collection('users').doc(uid).set({
         'name': name,
         'email': email,
@@ -61,12 +61,10 @@ class AuthService extends GetxService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Set accessToken
       accessToken = uid;
       await _preferenceManager.setString('token', uid);
       isLoggedIn.value = true;
 
-      // Load user profile
       await loadUserProfile();
     } on FirebaseAuthException catch (e) {
       Fluttertoast.showToast(
@@ -78,6 +76,7 @@ class AuthService extends GetxService {
     }
   }
 
+  // ───────────────── LOGIN ─────────────────
   Future<void> loginWithEmail({
     required String email,
     required String password,
@@ -105,6 +104,7 @@ class AuthService extends GetxService {
     }
   }
 
+  // ───────────────── RESET PASSWORD ─────────────────
   Future<void> resetPassword({required String email}) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -123,15 +123,17 @@ class AuthService extends GetxService {
     }
   }
 
+  // ───────────────── LOAD PROFILE ─────────────────
   Future<void> loadUserProfile() async {
     if (accessToken == null) return;
 
     try {
-      final doc = await _firestore.collection('users').doc(accessToken).get();
+      final doc =
+      await _firestore.collection('users').doc(accessToken).get();
       if (doc.exists) {
         final data = doc.data()!;
         userData.value = UserData(
-          id: 0, // Firebase UID, keeping 0 for now, can store UID if needed
+          id: 0,
           name: data['name'] ?? '',
           email: data['email'] ?? '',
           phone: data['phone'] ?? '',
@@ -151,6 +153,51 @@ class AuthService extends GetxService {
     }
   }
 
+  // ───────────────── DELETE ACCOUNT (NEW) ─────────────────
+  Future<void> deleteUserAccount({required String password}) async {
+    final user = _auth.currentUser;
+
+    if (user == null || user.email == null) {
+      throw Exception('No authenticated user');
+    }
+
+    try {
+      // Re-authentication (required by Firebase)
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+
+      // Delete Firestore user document
+      await _firestore.collection('users').doc(user.uid).delete();
+
+      // Delete Firebase Auth account
+      await user.delete();
+
+      // Clear local session
+      await _preferenceManager.remove('token');
+      accessToken = null;
+      userData.value = null;
+      isLoggedIn.value = false;
+
+      Fluttertoast.showToast(
+        msg: 'Account deleted successfully',
+        backgroundColor: AppColors.baseBlack,
+        textColor: AppColors.baseWhite,
+      );
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(
+        msg: e.message ?? 'Failed to delete account',
+        backgroundColor: AppColors.red500,
+        textColor: AppColors.baseWhite,
+      );
+      rethrow;
+    }
+  }
+
+  // ───────────────── LOGOUT ─────────────────
   Future<void> logout() async {
     await _auth.signOut();
     accessToken = null;
